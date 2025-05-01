@@ -1,12 +1,45 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState } from 'react';
+import LoadingScreen from '@/components/LoadingScreen';
+import HomePage from '@/components/HomePage';
+import Message from '@/components/Message';
+import PhotoGallery from '@/components/PhotoGallery';
+import BackgroundEffects from '@/components/BackgroundEffects';
+import AudioPlayer from '@/components/AudioPlayer';
 
 const Index = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const [showMessage, setShowMessage] = useState(false);
+
+  const handleLoadingComplete = () => {
+    setIsLoading(false);
+  };
+
+  const handleButtonClick = () => {
+    setShowMessage(true);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gradient-to-b from-romance-cream to-romance-blush overflow-x-hidden">
+      {isLoading ? (
+        <LoadingScreen onLoadingComplete={handleLoadingComplete} />
+      ) : (
+        <>
+          <AudioPlayer />
+          <BackgroundEffects />
+          
+          <div className={`transition-all duration-1000 ${showMessage ? 'opacity-0 h-0 overflow-hidden' : 'opacity-100'}`}>
+            <HomePage onButtonClick={handleButtonClick} />
+          </div>
+          
+          {showMessage && (
+            <div className="min-h-screen p-6 flex flex-col items-center justify-center animate-fade-in">
+              <Message />
+              <PhotoGallery />
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };
