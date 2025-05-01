@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Slider } from "@/components/ui/slider";
 import { Volume2, VolumeX } from 'lucide-react';
+import { toast } from "@/components/ui/sonner";
 
 const AudioPlayer = () => {
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -11,28 +12,16 @@ const AudioPlayer = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Using a different royalty-free music URL that's more reliable
-    const audioUrl = "https://storage.googleapis.com/media-session/sintel/snowfight.mp3";
+    // Using a more reliable audio URL format
+    const audioUrl = "https://audio.jukehost.co.uk/XzLTBLn6GO8fjGx4QE5AisW6iEYacYK1";
     
     if (audioRef.current) {
       audioRef.current.src = audioUrl;
       audioRef.current.volume = volume / 100;
       
-      const playPromise = audioRef.current.play();
-      
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            setIsPlaying(true);
-            setError(null);
-          })
-          .catch(error => {
-            // Auto-play was prevented
-            console.log("Audio playback issue:", error);
-            setIsPlaying(false);
-            setError("Click to play music");
-          });
-      }
+      // We won't try to autoplay on load to avoid browser restrictions
+      setIsPlaying(false);
+      setError("Click to play music");
     }
     
     return () => {
@@ -53,16 +42,27 @@ const AudioPlayer = () => {
     if (audioRef.current) {
       if (isPlaying) {
         audioRef.current.pause();
+        setIsPlaying(false);
       } else {
         const playPromise = audioRef.current.play();
         if (playPromise !== undefined) {
-          playPromise.catch(error => {
-            console.log("Playback error:", error);
-            setError("Unable to play music. Try again.");
-          });
+          playPromise
+            .then(() => {
+              setIsPlaying(true);
+              setError(null);
+              toast("Music playing", {
+                description: "Enjoy the romantic melody!"
+              });
+            })
+            .catch(error => {
+              console.log("Playback error:", error);
+              setError("Unable to play music. Try again.");
+              toast.error("Music playback issue", {
+                description: "Please try clicking the play button again."
+              });
+            });
         }
       }
-      setIsPlaying(!isPlaying);
     }
   };
 
